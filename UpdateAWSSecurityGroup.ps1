@@ -25,7 +25,7 @@ try {
             Write-Host "Did not found rules allowing inbound for all protocols." -ForegroundColor red
         }
         else {
-            Write-Host "Found rules allowing inbound for all protocols from" $IpPermissionAllowAll.Ipv4Ranges.Count "sources."
+            Write-Host "Found rules allowing inbound for all protocols from" $IpPermissionAllowAll.Ipv4Ranges.Count "sources"
 
             $ipv4RangeToRemove = $IpPermissionAllowAll.Ipv4Ranges | ? {$_.Description -eq $conf.ruleDescriptionToDelete}
             if ($ipv4RangeToRemove -eq $null)
