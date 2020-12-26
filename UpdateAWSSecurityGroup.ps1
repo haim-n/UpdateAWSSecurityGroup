@@ -5,7 +5,7 @@
 $configFilePath = "SG-Script-Config.json"
 $conf = Get-Content $configFilePath | Out-String | ConvertFrom-Json
 
-# putting it all in try-catch statement, to reduce the risk of messing up security group rules in case of unexpected error
+# putting it all in try-catch statement, to reduce the risk of messing up security group rules in case of an unexpected error
 try {
     $currentIp = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
     Write-Host "Current IP address:" $currentIp
