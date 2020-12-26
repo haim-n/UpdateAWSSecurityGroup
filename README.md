@@ -4,7 +4,7 @@ Suitable for cases where you want to automatically update the security group rul
 
 PreReqs:
 1. Install AWS PowerShell module.
-2. Identify the Security Group ID that you want to update and the relvant rule description.
+2. Identify the Security Group ID that you want to update and the relevant rule description.
 3. Create a dedicated IAM user with the premissions described in the "IAM-Policy-Required.json" file, and copy its access keys.
 4. Place the "SG-Script-Config.json" file in the script running directory and update its parameters.
 5. Run the script either manually or using a scheduled task.
