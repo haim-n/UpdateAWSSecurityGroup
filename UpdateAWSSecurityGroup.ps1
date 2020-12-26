@@ -1,11 +1,11 @@
 # Update the source IP of an existing "allow all traffic" Security Group inbound rule based on a Security Group ID and a rule description.
 # Suitable for cases where you want to automatically update the security group rules to allow access from your dynamic source IP (and to remove the previous rule).
-# PreReqs: Place the "SG-Script-Config.json" file in the script running directory and update its parameters
+# PreReqs: Place the "SG-Script-Config.json" file in the script running directory and update its parameters.
 
 $configFilePath = "SG-Script-Config.json"
 $conf = Get-Content $configFilePath | Out-String | ConvertFrom-Json
 
-# putting it all in allow-catch statement, to reduce the risk of messing up security group rules in case of unexpected error
+# putting it all in try-catch statement, to reduce the risk of messing up security group rules in case of unexpected error
 try {
     $currentIp = (Invoke-WebRequest -uri "http://ifconfig.me/ip").Content
     Write-Host "Current IP address:" $currentIp
