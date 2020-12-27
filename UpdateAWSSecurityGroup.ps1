@@ -11,7 +11,7 @@ try {
     Write-Host "Current IP address:" $currentIp
 
     # find old security group rules
-    $secGroup = (Get-EC2SecurityGroup -Region $conf.region -AccessKey $conf.access_k -SecretKey $conf.sec_k) | ? {$_.groupId -eq $conf.secGroupID}
+    $secGroup = (Get-EC2SecurityGroup -Region $conf.region -AccessKey $conf.access_k -SecretKey $conf.sec_k) | Where-Object {$_.groupId -eq $conf.secGroupID}
     if ($secGroup -eq $null)
     {
         Write-Host "Did not found Security Group with ID:" $conf.secGroupID -ForegroundColor red
@@ -19,7 +19,7 @@ try {
     else {
         Write-Host "Found Security Group to update:" $secGroup.GroupName
 
-        $IpPermissionAllowAll = ($secGroup.IpPermissions | ? {$_.IpProtocol -eq "-1"})
+        $IpPermissionAllowAll = ($secGroup.IpPermissions | Where-Object {$_.IpProtocol -eq "-1"})
         if ($IpPermissionAllowAll -eq $null)
         {
             Write-Host "Did not found rules allowing inbound for all protocols." -ForegroundColor red
@@ -27,31 +27,44 @@ try {
         else {
             Write-Host "Found rules allowing inbound for all protocols from" $IpPermissionAllowAll.Ipv4Ranges.Count "sources"
 
-            $ipv4RangeToRemove = $IpPermissionAllowAll.Ipv4Ranges | ? {$_.Description -eq $conf.ruleDescriptionToDelete}
-            if ($ipv4RangeToRemove -eq $null)
+            $existingRule = $IpPermissionAllowAll.Ipv4Ranges | Where-Object {$_.CidrIp -eq $currentIp+"/32"}
+            if ($existingRule -ne $null)
             {
-                Write-Host "Did not found rules allowing inbound for all protocols with description:" $conf.ruleDescriptionToDelete -ForegroundColor red
+                if ($existingRule.count -eq 1)
+                {
+                    Write-Host "There is already a rule allowing access from your IP, with the description:" $existingRule.Description -ForegroundColor Yellow
+                }
+                else {
+                    Write-Host "There are already" $existingRule.count "rules allowing access from your IP." -ForegroundColor Yellow
+                }
             }
-            else {              
-                Write-Host "Found rule with description:" $conf.ruleDescriptionToDelete
-                $ipPermissionToRevoke = $IpPermissionAllowAll
-                $ipPermissionToRevoke.Ipv4Ranges = $ipv4RangeToRemove
-                Revoke-EC2SecurityGroupIngress -GroupId $conf.secGroupID -IpPermissions $ipPermissionToRevoke -Region $conf.region -AccessKey $conf.access_k -SecretKey $conf.sec_k                
-                Write-Host "Revoked old IP:" $ipv4RangeToRemove.CidrIp -ForegroundColor Green
+            else {                
+                $ipv4RangeToRemove = $IpPermissionAllowAll.Ipv4Ranges | Where-Object {$_.Description -eq $conf.ruleDescriptionToDelete}
+                if ($ipv4RangeToRemove -eq $null)
+                {
+                    Write-Host "Did not found rules allowing inbound for all protocols with description:" $conf.ruleDescriptionToDelete -ForegroundColor red
+                }
+                else {              
+                    Write-Host "Found rule with description:" $conf.ruleDescriptionToDelete
+                    $ipPermissionToRevoke = $IpPermissionAllowAll
+                    $ipPermissionToRevoke.Ipv4Ranges = $ipv4RangeToRemove
+                    Revoke-EC2SecurityGroupIngress -GroupId $conf.secGroupID -IpPermissions $ipPermissionToRevoke -Region $conf.region -AccessKey $conf.access_k -SecretKey $conf.sec_k                
+                    Write-Host "Revoked old IP:" $ipv4RangeToRemove.CidrIp -ForegroundColor Green
 
-                # authorize access
-                $myIpRange = New-Object -TypeName Amazon.EC2.Model.IpRange
-                $myIpRange.CidrIp = $currentIp + "/32"
-                $myIpRange.Description = "Haim home IP"
-                $newIpPermissions = New-Object Amazon.EC2.Model.IpPermission
-                $newIpPermissions.IpProtocol = "-1"
-                $newIpPermissions.Ipv4Ranges = $myIpRange
-                Grant-EC2SecurityGroupIngress -GroupId $conf.secGroupID -IpPermission $newIpPermissions -Region $conf.region -AccessKey $conf.access_k -SecretKey $conf.sec_k
-                Write-Host "Authorized new IP:" $currentIp"/32" -ForegroundColor Green
+                    # authorize access
+                    $myIpRange = New-Object -TypeName Amazon.EC2.Model.IpRange
+                    $myIpRange.CidrIp = $currentIp + "/32"
+                    $myIpRange.Description = "Haim home IP"
+                    $newIpPermissions = New-Object Amazon.EC2.Model.IpPermission
+                    $newIpPermissions.IpProtocol = "-1"
+                    $newIpPermissions.Ipv4Ranges = $myIpRange
+                    Grant-EC2SecurityGroupIngress -GroupId $conf.secGroupID -IpPermission $newIpPermissions -Region $conf.region -AccessKey $conf.access_k -SecretKey $conf.sec_k
+                    Write-Host "Authorized new IP:" $currentIp"/32" -ForegroundColor Green
+                }    
             }
         }
     }
 }
 catch {
-    Write-Host "Encountered errors during running." -ForegroundColor red
+    Write-Host "Encountered unexpected errors during running." -ForegroundColor red
 }
