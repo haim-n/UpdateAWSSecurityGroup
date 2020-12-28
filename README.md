@@ -8,3 +8,9 @@ Steps and PreReqs:
 3. Create a dedicated IAM user with the premissions described in the "IAM-Policy-Required.json" file, and copy its access keys.
 4. Place the "SG-Script-Config.json" file in the script running directory and update its parameters.
 5. Run the script either manually or using a scheduled task.
+
+
+Possible improvements:
+1. Support rules allowing access in specific TCP port (instead of "all traffic").
+2. Support more than one security group.
+3. Run over all security groups in the account.
