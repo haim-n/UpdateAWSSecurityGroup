@@ -1,5 +1,7 @@
 # Update AWS Security Group
-Update the source IP of an existing "allow all traffic" Security Group inbound rule based on a Security Group ID and a rule description.
+Are you connecting to your EC2 machines from your home IP, and need to update the security groups each time your public IP changes? If so, this script is for you.
+
+The script updates the source IP of an existing "allow all traffic" Security Group inbound rule based on a Security Group ID and a rule description.
 Useful for cases where you want to automatically update a security group rule to allow access from your dynamic source IP (and to remove the previous rule).
 
 Steps and PreReqs:
@@ -10,7 +12,8 @@ Steps and PreReqs:
 5. Run the script either manually or using a scheduled task.
 
 
-Possible improvements:
+Possible future improvements:
 1. Support rules allowing access in specific TCP port (instead of "all traffic").
 2. Support more than one security group.
 3. Run over all security groups in the account.
+4. Support credentials from an AWS CLI profile.
