@@ -8,7 +8,7 @@
                 "ec2:RevokeSecurityGroupIngress",
                 "ec2:AuthorizeSecurityGroupIngress"
             ],
-            "Resource": "arn:aws:ec2:<region-id>:<account-id>:security-group/<security-group-id"
+            "Resource": "arn:aws:ec2:<region-id>:<account-id>:security-group/<security-group-id>"
         },
         {
             "Sid": "AllowReadSG",
