@@ -3,6 +3,7 @@ Are you connecting to your EC2 machines from your home IP, and need to update th
 
 The script updates the source IP of an existing "allow all traffic" Security Group inbound rule based on a Security Group ID and a rule description.
 Useful for cases where you want to automatically update a security group rule to allow access from your dynamic source IP (and to remove the previous rule).
+Recommended for use only against test environments.
 
 Steps and PreReqs:
 1. Install AWS PowerShell module.
